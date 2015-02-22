@@ -1,279 +1,1003 @@
 
-var SortedList = function(e){ 
-    var that = {}
-	
-    that.data = new Array();
-	that.name=null;
-	that.order='ascending';
-	
-	that.sortBy=function(name)
+(function (exports) {
+  "use strict";
+
+function Queue() {
+    this.queue  = new Array();
+    this.offset = 0;
+}
+
+Queue.prototype = {
+    constructor: Queue,
+    add:function(item){
+       this.queue.push(item);
+    },
+	compare:function(a,b)
 	{
-	  that.name=name;
-	}
+	    if(a<b)
+		  return 1;
+		else if(a>b)
+          return -1;
+        else		  
+	    return 0;
+	},
+	element:function(){
+      return (this.queue.length > 0 ? this.queue[this.offset] : null);
+    },
+    offer:function(item){
+       this.add(item);
+    },
+ 	peek:function(){
+       return this.element();
+    },
+	poll:function(){
+	   if (this.queue.length == 0) return null;
+	   var item = this.queue[this.offset];
+	   if (++ this.offset * 2 >= this.queue.length){
+          this.queue  = this.queue.slice(this.offset);
+          this.offset = 0;
+       }
+	   return item;
+    },
+	remove:function(){
+	    var item=this.poll();
+		if(item==null)
+		  return false;
+		return true;
+	},
+	size:function(){
+      return (this.queue.length - this.offset);
+    },
+	isEmpty:function(){
+       return (this.queue.length == 0);
+    },
 	
-	that.orderBy=function(order)
+	toArray:function(){
+	    return this.queue;
+	},
+
+    toString: function(){
+        return this.toArray().toString();
+    }
+	
+};
+
+function SortedSet() {
+    this.data = new Array();
+}
+SortedSet.prototype = {
+    constructor: SortedSet,
+	compare:function(a,b)
 	{
-	  that.order=order;
-	}
-	
-	that.add = function(element) 
+	    if(a<b)
+		  return 1;
+		else if(a>b)
+          return -1;
+        else		  
+	    return 0;
+	},
+	add:function(element) 
 	{
-	  if(that.order=='ascending')
-	    if(that.name==null)
-	      that.data.splice(sortA(element, that.data) + 1, 0, element);
-		else
-	      that.data.splice(sortObjectA(element, that.data) + 1, 0, element);
-		
-		
-	  if(that.order=='descending')
-	    if(that.name==null)
-	      that.data.splice(sortB(element, that.data) + 1, 0, element);
-		else
-	      that.data.splice(sortObjectB(element, that.data) + 1, 0, element);
-		
-	}
+	   if(this.data.indexOf(element)==-1)
+	    this.data.splice(this.sort(element, this.data) + 1, 0, element);
+	},
+	
+    get : function(index) {
+        return this.data[index];
+    },
+	
+    remove : function(index) {
+        this.data.splice(index,1);
+    },
+	
+	indexOf:function(key){
+	   for(var i=0;i<this.size();i++)
+		{
+		   if(this.compare(this.get(i),key)==0)
+		     return i;
+		}
+	    return -1;
+	},
+    contains : function(key) {
+        return this.indexOf(key)!=-1;
+    },
 	
 	
+    isEmpty : function() {
+        return this.data.length == 0;
+    },
 	
-    that.get = function(index) {
-        return that.data[index];
-    };
-	
-    that.remove = function(index) {
-        that.data.splice(index,1)
-    };
-	
-    that.contains = function(key) {
-        if(that.data.indexOf(key)==-1)
-			  return false;
-	    else
-			  return true;
-    };
-	
-    that.isEmpty = function() {
-        return that.data.length == 0;
-    };
-	
-	that.each=function(iteratorFunction, thisObj) {
+	each:function(iteratorFunction, thisObj) {
         for (var value in this._values) {
             iteratorFunction.call(thisObj, this._values[value]);
         }
-    }
-
-    that.size = function(){
-        return that.data.length;
-    };
+    },
 	
-	
-	
-	function sortA(element, array, start, end) {
+	sort:function(element, array, start, end) {
        start = start || 0;
        end = end || array.length;
        var pivot = parseInt(start + (end - start) / 2, 10);
-       if (array[pivot] === element) return pivot;
+	   if (array.length==0) return pivot;
+       if (this.compare(array[pivot],element)==0) return pivot;
        if (end - start <= 1)
-          return array[pivot] > element ? pivot - 1 : pivot;
-       if (array[pivot] < element) {
-          return sortA(element, array, pivot, end);
+          return this.compare(array[pivot],element)<0 ? pivot - 1 : pivot;
+       if (this.compare(array[pivot],element)>0) {
+          return this.sort(element, array, pivot, end);
        } else {
-          return sortA(element, array, start, pivot);
+          return this.sort(element, array, start, pivot);
       }
+    },
+
+    size : function(){
+        return this.data.length;
+    },
+	
+	toArray:function(){
+	    return this.data;
+	},
+
+    toString: function(){
+        return this.toArray().toString();
     }
-	function sortB(element, array, start, end) {
-       start = start || 0;
-       end = end || array.length;
-       var pivot = parseInt(start + (end - start) / 2, 10);
-       if (array[pivot] === element) return pivot;
-       if (end - start <= 1)
-          return array[pivot] < element ? pivot - 1 : pivot;
-       if (array[pivot] > element) {
-          return sortB(element, array, pivot, end);
-       } else {
-          return sortB(element, array, start, pivot);
-      }
-    }
-	function sortObjectA(element, array, start, end) {
-	  
-          start = start || 0;
-          end = end || array.length;
-          var pivot = parseInt(start + (end - start) / 2, 10);
-		  
-          if (array.length==0) return pivot;
-		  if (array[pivot][that.name] === element[that.name]) return pivot;
-          if (end - start <= 1)
-		      return array[pivot][that.name] > element[that.name] ? pivot - 1 : pivot;
-          if (array[pivot][that.name] < element[that.name]) {
-             return sortObjectA(element, array, pivot, end);
-          } else {
-              return sortObjectA(element, array, start, pivot);
-          }
-		  
-	 }
-	function sortObjectB(element, array, start, end) {
-	  
-          start = start || 0;
-          end = end || array.length;
-          var pivot = parseInt(start + (end - start) / 2, 10);
-		  
-          if (array.length==0) return pivot;
-		  if (array[pivot][that.name] === element[that.name]) return pivot;
-          if (end - start <= 1)
-		      return array[pivot][that.name] < element[that.name] ? pivot - 1 : pivot;
-          if (array[pivot][that.name] > element[that.name]) {
-             return sortObjectB(element, array, pivot, end);
-          } else {
-              return sortObjectB(element, array, start, pivot);
-          }
-		  
-	 }
-	
-	return that;
-	
-	
-}
-	
-var ArrayList = function(e){ 
-    var that = {}
-	
-    that.data = new Array();
-	
-    that.add = function(value) {
-       that.data.push(value);
-    };
-    
-    that.addAll = function(list) {
-        for(var i=0;i<list.size();i++)
-           that.data.push(list.get(i));
-    };
-	
-    that.get = function(index) {
-        return that.data[index];
-    };
-	
-    that.remove = function(index) {
-        that.data.splice(index,1)
-    };
-	
-    that.contains = function(key) {
-        if(that.data.indexOf(key)==-1)
-			  return false;
-	    else
-			  return true;
-    };
-	
-    that.isEmpty = function() {
-        return that.data.length == 0;
-    };
-
-    that.size = function(){
-        return that.data.length;
-    };
-	
-	return that;
-
-}
-
-var HashMap = function(e){ 
-   var that = {}
-   that.keys = new Array();
-   that.data = new Object();
-	 
-	that.put = function(key, value) {
-            key=JSON.stringify(key);
-			key=hash(key);
-            if(that.keys.indexOf(key)==-1){
-                that.keys.push(key);
-            }
-            that.data[key] = value;
-        };
-		 
-        that.get = function(key) {
-            key=JSON.stringify(key);
-			key=hash(key);
-            return that.data[key];
-        };
-	 
-        that.remove = function(key) {
-            key=JSON.stringify(key);
-			key=hash(key);
-            that.keys.remove(key);
-            that.data[key] = null;
-        };
-		
-	that.containsKey = function(key) {
-            if(that.keys.indexOf(key)==-1)
-			  return false;
-			else
-			  return true;
-        };
-        
-        that.keySet = function() {
-            return that.keys;
-        };
-        that.isEmpty = function() {
-           return that.keys.length == 0;
-        };
-
-        that.size = function(){
-             return that.keys.length;
-        };
-	
-	return that;
-}
-
-
-
-var LinkedList = function(e){ 
-   var that = {}, first, last;
-   
-   that.push = function(value){
-       var node = new Node(value);
-       if(first == null){
-          first = last = node;
-       }
-	   else{
-          last.next = node;
-          last = node;
-       }
-   };
- 
-    that.pop = function(){
-       var value = first;
-       first = first.next;
-       return value;
-    };
- 
-    
-    that.isEmpty = function() {
-           return first == null;
-     };
- 
-    that.remove = function(index) {
-       var i = 0;
-       var current = first, previous;
-       if(index === 0){
-          first = current.next;
-        }
-		else{
-         while(i++ < index){
-            previous = current;
-			current = current.next
-         }
-		 previous.next = current.next;
-        }
-        return current.value;
-    };
-    
-	var Node = function(value){
-       this.value = value;
-       var next = {};
-    };
- 
-    return that;
 };
- 
 
- function hash(str) {
+function SortedList() {
+    this.data = new Array();
+}
+
+SortedList.prototype = {
+    constructor: SortedList,
+	compare:function(a,b)
+	{
+	    if(a<b)
+		  return 1;
+		else if(a>b)
+          return -1;
+        else		  
+	    return 0;
+	},
+	add:function(element) 
+	{
+	    this.data.splice(this.sort(element, this.data) + 1, 0, element);
+	},
+	
+    get : function(index) {
+        return this.data[index];
+    },
+	
+    remove : function(index) {
+        this.data.splice(index,1);
+    },
+	
+	indexOf:function(key){
+	   for(var i=0;i<this.size();i++)
+		{
+		   if(this.compare(this.get(i),key)==0)
+		     return i;
+		}
+	    return -1;
+	},
+    contains : function(key) {
+        return this.indexOf(key)!=-1;
+    },
+	
+	
+    isEmpty : function() {
+        return this.data.length == 0;
+    },
+	
+	each:function(iteratorFunction, thisObj) {
+        for (var value in this._values) {
+            iteratorFunction.call(thisObj, this._values[value]);
+        }
+    },
+	
+	sort:function(element, array, start, end) {
+       start = start || 0;
+       end = end || array.length;
+       var pivot = parseInt(start + (end - start) / 2, 10);
+	   if (array.length==0) return pivot;
+       if (this.compare(array[pivot],element)==0) return pivot;
+       if (end - start <= 1)
+          return this.compare(array[pivot],element)<0 ? pivot - 1 : pivot;
+       if (this.compare(array[pivot],element)>0) {
+          return this.sort(element, array, pivot, end);
+       } else {
+          return this.sort(element, array, start, pivot);
+      }
+    },
+
+    size : function(){
+        return this.data.length;
+    },
+	
+	toArray:function(){
+	    return this.data;
+	},
+
+    toString: function(){
+        return this.toArray().toString();
+    }
+};
+	
+function ArrayList() {
+    this.data = new Array();
+}
+
+ArrayList.prototype = {
+    constructor: ArrayList,
+	add : function(value) {
+       this.data.push(value);
+    },
+    
+    addAll : function(list) {
+        for(var i=0;i<list.size();i++)
+           this.add(list.get(i));
+    },
+	
+    get : function(index) {
+        return this.data[index];
+    },
+	
+    remove : function(index) {
+        this.data.splice(index,1)
+    },
+	
+	sort : function()
+	{
+	   this.data.sort(this.compare());
+	},
+	
+	compare:function(a,b)
+	{
+	    if(a<b)
+		  return 1;
+		else if(a>b)
+          return -1;
+        else		  
+	    return 0;
+	},
+	indexOf:function(key){
+	   for(var i=0;i<this.size();i++)
+		{
+		   if(this.compare(this.get(i),key)==0)
+		     return i;
+		}
+	    return -1;
+	},
+    contains : function(key) {
+        return this.indexOf(key)!=-1;
+    },
+	
+    isEmpty : function() {
+        return this.data.length == 0;
+    },
+
+    size : function(){
+        return this.data.length;
+    },
+	
+	toArray:function(){
+	    return this.data;
+	},
+
+    toString: function(){
+        return this.toArray().toString();
+    }
+};
+
+function LinkedList() {
+    this._length = 0;
+    this._head = null;
+    this._tail = null;
+  }
+
+  LinkedList.prototype = {
+
+    add: function (value){
+        var node = {
+                value: value,
+                next: null,
+                prev: null
+            };
+        if (this._length == 0) {
+            this._head = node;
+            this._tail = node;
+        } else {
+            this._tail.next = node;
+            node.prev = this._tail;
+            this._tail = node;
+        }   
+        this._length++;
+
+    },
+	
+	addByIndex: function(index,element){
+	    console.log('test');
+	},
+	
+	addAll: function(list){
+	   
+	},
+	addAllByIndex:function(index, list){
+	},
+	addLast:function(e)	{
+        this.add(e);	
+	},
+	clear:function(){
+        this._head = null;
+        this._tail = null;
+	},
+	compare:function(a,b)
+	{
+	    if(a<b)
+		  return 1;
+		else if(a>b)
+          return -1;
+        else		  
+	    return 0;
+	},
+	contains:function(value){
+	    var contain = false;
+        var current = this.first;
+		while(current!=null)
+	      {
+            if(this.compare(current.value,value)==0)
+			 contain =true;
+			current = current.next;
+          }
+        return contain;
+	},	
+	descendingIterator:function(){
+	},	
+	element:function(){
+	   return this.head.value;
+	},	
+	get:function(index){
+	    //console.log(index);
+	    if (index >= 0 && index < this._length) {
+         var node = this._head;
+         while (index--) {
+          node = node.next;
+         }
+         return node.value;
+       }
+	   return null;
+	},
+	getFirst:function(){	   
+	   return this.head.value;
+	},	
+	getLast:function(){
+	   return this.tail.value;
+	},
+	indexOf:function(value){
+	    var i=-1;
+        var current = this._head;
+		//console.log(current);
+		while(current!=null)
+	      {
+			i++;
+            if(this.compare(current.value,value)==0)
+			{
+			  return i;
+			 }
+			current = current.next;
+          }
+        return -1;
+	},	
+	lastIndexOf:function(value){
+	    var i=-1;
+        var current = this._tail;
+		while(current!=null)
+	      {
+			i++;
+            if(this.compare(current.value,value)==0){
+			 return this._length-i-1;
+			}
+			current = current.prev;
+          }
+        return -1;
+	},	
+	listIterator:function(index){
+	},
+	offer:function(e){
+	   this.add(e);
+	},
+	offerFirst:function(value){
+	   var node = {
+                value: value,
+                next: null,
+                prev: null
+       };
+	   node.next=this.first;
+	   this._head=node;
+	},
+	offerLast:function(e){
+	   this.add(e);
+	},
+	peek:function(){ 
+	   return this._head.value;
+	},
+	peekFirst:function(){ 
+	   return this._head.value;
+	},
+	peekLast:function(){ 
+	   return this.last.value;
+	},
+	poll:function(){	
+	   var value = this._head;
+	   if(this._head!=null)
+         this._head = this._head.next;	   
+       return value;
+	},
+	pollFirst:function(){
+	    this.poll();
+	},
+	pollLast:function(){
+	    this.removeByIndex(this.length-1);
+	},
+	
+	
+	remove:function(o){
+	  if(isNaN(o))
+	    this._removeByElement(o);
+	  else
+	    this._removeByIndex(o);
+	},
+	removeFirst:function(){
+	    if(this.poll()!=null)
+		   return true;
+		return false;
+	},
+	removeFirstOccurrence:function(o){	   
+	   var index=this.indexOf(o);
+	   if(index!=-1){
+	     this._removeByIndex(index);
+		 return true;
+		}
+		return false;
+	},
+	removeLast:function(){
+	   this._removeByIndex(this.size()-1);
+	},
+	removeLastOccurrence:function(o){
+	   var index=this.lastIndexOf(o);
+	   if(index!=-1){
+	     this._removeByIndex(index);
+		 return true;
+		}
+		return false;
+	},
+	set:function(index,element){
+	    if(index<this.size())
+		{
+           var i = 0;
+           var current = this._head;
+	       if(index === 0){
+             this._head.value = element;
+           }
+		   else{
+             while(i++ < index){
+			   current = current.next;
+             }
+		     current.value = element;
+           }
+		}
+		else
+		  console.log('Wrong Index');
+	},
+	size:function()
+	{
+	   return this._length;
+	},
+	
+    toArray:function(){
+	   
+        var result = [];
+        this.traverse(function(node){
+            result.push(node.value);
+        });
+        return result;
+	},
+
+    toString: function(){
+        return this.toArray().toString();
+    },
+	
+	_removeByIndex: function(index){
+        if (index > -1 && index < this._length){
+
+            var current = this._head,
+                i = 0;
+            if (index === 0){
+                this._head = current.next;
+                if (!this._head){
+                    this._tail = null;
+                } else {
+                    this._head.prev = null;
+                }
+            } else if (index === this._length -1){
+                current = this._tail;
+                this._tail = current.prev;
+                this._tail.next = null;
+            } else {
+			
+                while(i++ < index){
+                    current = current.next;
+                }
+				
+                current.prev.next = current.next;
+            }
+			
+            this._length--;
+			
+            return current.value;            
+
+        } else {
+            return null;
+        }
+
+     },
+	
+	_removeByElement:function(value){	   
+       var current = this._head, previous,test;
+	   var index=0;
+	   var valuePosition=new Array();
+	   
+	   while(current.next != null)
+       {
+	      if(this.compare(current.value,value)==0)
+		     {
+			   valuePosition.push(index);
+			 }
+			current = current.next;
+			index=index+1;
+       }
+	   for(var i=0;i<valuePosition.length;i++)
+	     this.removeByIndex(valuePosition[i]-i);
+	      
+        //return current.value;
+	   
+	},
+	
+	 traverse: function(process){
+	
+        function read(node){
+            if (node){ 
+                process.call(this, node);
+                if (node.next !== null){
+                    read(node.next);
+                }      
+            }
+        }
+        read(this._head);
+    },
+	
+  };
+
+function TreeSet() {
+    this._root = null;
+}
+
+TreeSet.prototype = {
+    constructor: TreeSet,
+    add: function(value){
+        var node = {
+                value: value,
+                left: null,
+                right: null
+            },
+            current;
+        if (this._root === null){
+            this._root = node;
+        } else {
+            current = this._root;
+            while(true){
+			    //console.log(this.compare);
+                if (this.compare(value,current.value)>0){
+                    if (current.left === null){
+                        current.left = node;
+                        break;
+                    } else {
+                        current = current.left;
+                    }
+                } else if (this.compare(value,current.value)<0){
+                    if (current.right === null){
+                        current.right = node;
+                        break;
+                    } else {
+                        current = current.right;
+                    }       
+				} else {
+                    break;
+                }
+            }
+        }
+    },
+   addAll: function( c){
+   },
+   ceiling:function(value)
+	{	   
+	   var current = this.toArray();
+	   var result=current[0];
+	   for(var i=0;i<current.length;i++)
+	   {
+	      var compareVal=this.compare(value,current[i])
+	      if(compareVal==-1||compareVal==0)
+		   result=current[i];
+	   }
+	   return result;
+	},
+	clear:function()
+	{	   
+	   this._root = null;
+	},
+	contains: function(value){
+        var found       = false,
+            current     = this._root
+			
+        while(!found && current){
+		
+            if (this.compare(value,current.value)>0){
+                current = current.left;
+				
+            } else if (this.compare(value,current.value)<0){
+                current = current.right;
+				
+            } else {
+                found = true;
+            }
+        }
+		
+        return found;
+    },
+	compare:function(a,b)
+	{
+	    if(a<b)
+		  return 1;
+		else if(a>b)
+          return -1;
+        else		  
+	    return 0;
+	},
+	descendingIterator:function()
+	{
+	},
+	descendingSet:function()
+	{
+	},
+    first:function(){
+	   var current=this._root;
+	   var value=null;
+	   while(current!=null)
+	   {
+	     value=current.value;
+	     current=current.left;
+	   }
+	     return value;
+	},
+	floor:function(value)
+	{	   
+	   var current = this.toArray();
+	   var result=current[current.length-1];
+	   for(var i=current.length-1;i>=0;i--)
+	   {
+	      var compareVal=this.compare(value,current[i])
+	      if(compareVal==-1||compareVal==0)
+		   result=current[i];
+	   }
+	   return result;
+	},
+	higher:function(value)
+	{	   
+	   var current = this.toArray();
+	   var result=current[current.length-1];
+	   for(var i=current.length-1;i>=0;i--)
+	   {
+	      var compareVal=this.compare(value,current[i])
+	      if(compareVal==1)
+		   result=current[i];
+	   }
+	   return result;
+	},
+	isEmpty:function(){
+	   return this.root==null
+	},
+	
+    iterator:function(){
+	     var that={},i=0;
+		 var data=this.toArray();
+		 
+	     that.next=function()
+		 {
+		   var value=data[i];
+		   i=i+1;
+		   return value;
+		 }
+		 
+		 that.hasNext=function()
+		 {
+		    if(i<data.length)
+			   return true;
+			return false;
+		 }
+		 
+		 return that;
+	 },
+    last:function(){
+	   var current=this._root;
+	   var value=null;
+	   while(current!=null)
+	   {
+	     value=current.value;
+	     current=current.right;
+	   }
+	     return value;
+	},
+	lower:function(value)
+	{	   
+	   var current = this.toArray();
+	   var result=current[current.length-1];
+	   for(var i=current.length-1;i>=0;i--)
+	   {
+	      var compareVal=this.compare(value,current[i])
+	      if(compareVal==-1)
+		   result=current[i];
+	   }
+	   return result;
+	},
+	remove: function(value){
+       var found = false,
+       parent = null,
+       current = this._root,childCount,replacement,replacementParent;
+	   while(!found && current){
+	    if (this.compare(value,current.value)>0){
+           parent = current;
+           current = current.left;
+		} else if (this.compare(value,current.value)<0){
+		   parent = current;
+           current = current.right;
+		} else {
+          found = true;
+        }
+       }
+	   if (found){
+	      childCount = (current.left !== null ? 1 : 0) + (current.right !== null ? 1 : 0);
+		  if (current === this._root){
+              switch(childCount){
+			    case 0:
+                   this._root = null;
+				break;
+				case 1:
+                    this._root = (current.right === null ? current.left : current.right);
+                 break;
+				 case 2:
+                    replacement = this._root.left;
+                    while (replacement.right !== null){
+                          replacementParent = replacement;
+                          replacement = replacement.right;
+                        }
+                    if (replacementParent !== null){
+                          replacementParent.right = replacement.left;
+						  replacement.right = this._root.right;
+						  replacement.left = this._root.left;
+						}
+					else {
+					      replacement.right = this._root.right;
+                        }
+						this._root = replacement;
+              }
+		  } else {
+               switch (childCount){
+			      case 0:
+				     if (this.compare(current.value,parent.value)>0){
+					    parent.left = null;
+					  } else {
+                        parent.right = null;
+                      }
+                  break;
+				  case 1:
+				     if (this.compare(current.value,parent.value)>0){
+                        parent.left = (current.left === null ? current.right : current.left);
+                     } else {
+                        parent.right = (current.left === null ? current.right : current.left);
+                     }
+                  break;
+                  case 2:
+				     replacement = current.left;
+                     replacementParent = current;
+					 while(replacement.right !== null){
+                         replacementParent = replacement;
+                         replacement = replacement.right;
+                     }
+                     replacementParent.right = replacement.left;
+                     replacement.right = current.right;
+                     replacement.left = current.left;
+					 if (this.compare(current.value,parent.value)>0){
+                         parent.left = replacement;
+                     } else {
+                         parent.right = replacement;
+                     }
+			   }
+           }
+        }
+    },
+    pollFirst:function()
+	{
+	  //Retrieves and removes the first (lowest) element, or returns null if this set is empty.
+	},
+	pollLast:function()
+	{
+	  //Retrieves and removes the last (highest) element, or returns null if this set is empty.
+	},
+	size: function(){
+        var length = 0;
+
+        this.traverse(function(node){
+            length++;
+        });
+
+        return length;
+    },
+
+    toArray: function(){
+        var result = [];
+
+        this.traverse(function(node){
+            result.push(node.value);
+        });
+
+        return result;
+    },
+
+    toString: function(){
+        return this.toArray().toString();
+    },
+	
+	traverse: function(process){
+	
+        function inOrder(node){
+            if (node){
+			
+                if (node.left !== null){
+                    inOrder(node.left);
+                }            
+				
+                process.call(this, node);
+				
+                if (node.right !== null){
+                    inOrder(node.right);
+                }
+            }
+        }
+		
+        inOrder(this._root);
+    }
+};
+
+function HashMap() {
+   this.keys = new Array();
+   this.data = new Object();
+}
+HashMap.prototype = {
+    constructor: HashMap,
+    clear:function(){
+	    this.keys = new Array();
+        this.data = new Object();
+	},
+	containsKey:function(key) {
+	    return this.keys.indexOf(key)==-1;
+    },
+	containsValue:function(value){
+	   var keys=this.keySet();
+	   for(var i=0;i<keys.length;i++){
+	       if(this.get(keys[i])==value)
+		     return true;
+	   }
+	   return false;
+	},
+	entrySet:function(){
+	   var Entry = function(e){ 
+         var that = {};
+		 
+		 that.key=null;
+		 that.value=null;
+		 
+		 that.init= function(key,value){
+		    that.key=key;
+		    that.value=value;
+         }
+		 that.setValue = function(value){
+		    //that.key=key;
+			//that.value=value;
+         }
+		 that.getKey = function(){
+		    return that.key;
+         }
+		 that.getValue = function(){
+		    return that.value;
+         }
+		 return that;
+	   }
+	   
+	   var keys=this.keySet();
+	   var data=this.data;
+	   var these={},i=0;
+	   
+	   these.next=function()
+		 {
+		   var entry=new Entry();
+		    var keyValue=keys[i];
+		    var key=JSON.stringify(keyValue);
+		    key=hash(key);
+		    entry.init(keys[i],data[key]);
+		    i=i+1;
+		   return entry;
+		 }
+		 
+		 these.hasNext=function()
+		 {
+		    if(i<keys.length)
+			   return true;
+			return false;
+		 }
+		 
+		 return these;
+	   
+	},
+	get:function(key) {
+        key=JSON.stringify(key);
+		key=hash(key);
+        return this.data[key];
+    },
+	isEmpty:function() {
+           return this.keys.length == 0;
+    },
+	keySet:function() {
+        return this.keys;
+    },
+	put:function(key, value) {
+		if(this.keys.indexOf(key)==-1){
+            this.keys.push(key);
+        }
+        key=JSON.stringify(key);
+		key=hash(key);        
+        this.data[key] = value;
+		
+		
+    },
+	putAll:function(map){
+	    var iterator=map.entrySet();
+		while(iterator.hasNext())
+	    {
+	      var entry=iterator.next();
+		  this.put(entry.getKey(),entry.getValue());
+        }
+	},
+	remove:function(key) {
+        this.keys.remove(key);
+		key=JSON.stringify(key);
+	    key=hash(key);            
+        this.data[key] = null;
+    },
+	
+	compare : function(sort)
+	{
+	   if(sort==undefined)
+	   this.keys.sort();
+	   else
+	   this.keys.sort(sort);
+	},
+	size:function(){
+        return this.keys.length;
+    },
+	values:function(){
+	},
+};
+
+
+
+function hash(str) {
         var xl;
         var rotateLeft = function(lValue, iShiftBits) {
           return lValue << iShiftBits | lValue >>> 32 - iShiftBits;
@@ -442,6 +1166,13 @@ var LinkedList = function(e){
         return temp.toLowerCase();
  }
 
- 
-
-
+   exports.Queue = Queue;
+   exports.SortedSet = SortedSet;
+   exports.SortedList = SortedList;
+   exports.ArrayList = ArrayList;
+   exports.LinkedList = LinkedList;
+   exports.TreeSet = TreeSet;
+   exports.HashMap = HashMap;
+   
+   
+})(typeof exports === 'undefined' ? this['Collection'] = {} : exports);
