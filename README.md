@@ -1,27 +1,18 @@
 It can be used in both nodejs and browser.
 
-
-  var set=new Collection.SortedSet();   
-  set.compare=function(a,b)
-	{
-	    if(a<b)
-		  return 1;
-		else if(a>b)
-          return -1;
-        else		  
-	    return 0;
-	}
-	set.add('z');
-	set.add('c');
-	set.add('a');
-	set.add('a');
-	set.add('b');
-	set.add('k');
+       var sets=new Collection.SortedSet();   
+  
+	sets.add('z');
+	sets.add('c');
+	sets.add('a');
+	sets.add('a');
+	sets.add('b');
+	sets.add('k');
 	 
-	console.log("Contains k "+set.contains("k"));
+	console.log("Contains k "+sets.contains("k"));
 	 
-	for(var c in set.toArray())
-	    console.log(set.get(c));
+	for(var c in sets.toArray())
+	    console.log(sets.get(c));
 	    
 	
 	var list=new Collection.SortedList();
