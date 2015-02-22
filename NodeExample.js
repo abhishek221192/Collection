@@ -1,4 +1,4 @@
-var Collection=require('./collectionNode');
+var Collection=require('./collection');
 
 
     var set=new Collection.SortedSet();   
