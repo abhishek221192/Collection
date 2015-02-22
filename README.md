@@ -186,4 +186,7 @@ It can be used in both nodejs and browser.
 	    console.log(entry.getKey().id+"  ==  "+entry.getValue());
      }
 	
-	
+Note:-
+1) Some of Methods are still incomplete
+2) ArrayList is implemented over Array.
+3) It is not fully tested.
