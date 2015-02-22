@@ -1,7 +1,5 @@
+It can be used in both nodejs and browser.
 
-How to use it
-
-  console.log("SortedSet ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X-----------X<br/>");
 
   var set=new Collection.SortedSet();   
   set.compare=function(a,b)
@@ -24,8 +22,7 @@ How to use it
 	 
 	for(var c in set.toArray())
 	    console.log(set.get(c));
-		
-    console.log("<br><br/> SortedList ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
+	    
 	
 	var list=new Collection.SortedList();
 	list.compare=function(a,b)
@@ -48,8 +45,8 @@ How to use it
 	for(var c in list.toArray())
 	    console.log(list.get(c).name);
 		
-		
-    console.log("<br><br/> ArrayList ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
+	
+	
 	
 	var list=new Collection.ArrayList();
 	list.compare=function(a,b)
@@ -73,9 +70,9 @@ How to use it
 	for(var c in list.toArray())
 	    console.log(list.get(c).name);
 	
-    console.log("<br><br/>Queue ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
+	
 	var queue=new Collection.Queue();
-    queue.add(4);
+        queue.add(4);
 	queue.add(5);
 	queue.add(6);
 		
@@ -91,9 +88,8 @@ How to use it
 		console.log("Peek "+queue.peek());
 		console.log(queue.toArray());
 	
-	console.log("<br><br/>Linked List----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
-	
-	var list = new Collection.LinkedList();
+
+    var list = new Collection.LinkedList();
     list.compare=function(a,b)
 	{
 	    if(a.name<b.name)
@@ -116,8 +112,6 @@ How to use it
 	console.log(list.toArray());
 	console.log(list.get(2));
 	
-	console.log("<br><br/>ArrayList ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
-	
 	var list = new Collection.ArrayList();
     list.compare=function(a,b)
 	{
@@ -138,9 +132,8 @@ How to use it
     console.log(list.indexOf({'name':'k'}));
 	console.log(list.toArray());
 	console.log(list.get(2));
-	
-	console.log("<br><br/>TreeSet ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
-	
+
+
     var tree=new Collection.TreeSet();
 	
 	tree.compare=function(a,b)
@@ -171,7 +164,7 @@ How to use it
 	    console.log(iterator.next().name);
      }
 	 
-	 console.log("<br><br/>HashMap ----------X----------X----------X-------X--------X--------X--------X--------X--------X--------X--------X----------X<br/>");
+	 
 	    var map=new Collection.HashMap();
 		
 		var t={id:'a',name:'test'};
@@ -201,9 +194,5 @@ How to use it
 	    var entry=iterator.next();
 	    console.log(entry.getKey().id+"  ==  "+entry.getValue());
      }
-		
-
-   </script>
-	  
-  
-</html>
+	
+	
