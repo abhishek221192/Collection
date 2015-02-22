@@ -1,6 +1,6 @@
 It can be used in both nodejs and browser.
 
-       var sets=new Collection.SortedSet();   
+var sets=new Collection.SortedSet();   
   
 	sets.add('z');
 	sets.add('c');
